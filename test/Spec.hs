@@ -15,10 +15,12 @@ propAssoc xs ys zs = mappend x (mappend y z) == mappend (mappend x y) z
         z = makeSet zs
 
 propLeftIdentity :: String -> Bool
-propLeftIdentity xs = mappend mempty xs == xs
+propLeftIdentity xs = mappend mempty x == x
+  where x = makeSet xs
 
 propRightIdentity :: String -> Bool
-propRightIdentity xs = mappend xs mempty == xs
+propRightIdentity xs = mappend x mempty == x
+  where x = makeSet xs
 
 newtype Intersect a = Intersect (Set a) deriving (Show, Eq)
 
