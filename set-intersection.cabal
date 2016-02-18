@@ -17,6 +17,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Lib
   build-depends:       base >= 4.7 && < 5
+                     , containers
   default-language:    Haskell2010
 
 executable set-intersection-exe
@@ -33,6 +34,8 @@ test-suite set-intersection-test
   main-is:             Spec.hs
   build-depends:       base
                      , set-intersection
+                     , QuickCheck
+                     , containers
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
