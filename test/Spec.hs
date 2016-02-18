@@ -8,26 +8,46 @@ main = do
   quickCheck propLeftIdentity
   quickCheck propRightIdentity
 
-propAssoc :: String -> String -> String -> Bool
-propAssoc xs ys zs = mappend x (mappend y z) == mappend (mappend x y) z
-  where x = makeSet xs
-        y = makeSet ys
-        z = makeSet zs
+propAssoc :: Intersect -> Intersect -> Intersect -> Bool
+propAssoc xs ys zs = mappend xs (mappend ys zs) == mappend (mappend xs ys) zs
 
-propLeftIdentity :: String -> Bool
-propLeftIdentity xs = mappend mempty x == x
-  where x = makeSet xs
+propLeftIdentity :: Intersect -> Bool
+propLeftIdentity xs = mappend mempty xs == xs
 
-propRightIdentity :: String -> Bool
-propRightIdentity xs = mappend x mempty == x
-  where x = makeSet xs
+propRightIdentity :: Intersect -> Bool
+propRightIdentity xs = mappend xs mempty == xs
 
-newtype Intersect a = Intersect (Set a) deriving (Show, Eq)
+newtype Intersect = Intersect (Set Char) deriving (Show, Eq)
 
-makeSet :: (Ord a) => [a] -> Intersect a
-makeSet xs = Intersect ys
-  where ys = foldr insert empty xs
+makeSet :: String -> Intersect
+makeSet xs = Intersect $ foldr insert empty valid
+  where valid =
+          if all (flip elem ['a'..'z']) xs
+          then xs
+          else error xs ++ " contains illegal characters (a..z only allowed)"
 
-instance (Ord a) => Monoid (Intersect a) where
-  mempty = Intersect empty
+instance Monoid Intersect where
+  mempty = makeSet ['a'..'z']
   mappend (Intersect xs) (Intersect ys) = Intersect $ intersection xs ys
+
+genSafeChar :: Gen Char
+genSafeChar = elements ['a'..'z']
+
+genSafeSet :: Gen Intersect
+genSafeSet = fmap makeSet $ listOf genSafeChar
+
+
+--
+-- newtype SafeString = SafeString { unwrapSafeString :: String }
+--     deriving Show
+--
+instance Arbitrary Intersect where
+    arbitrary = genSafeSet
+--
+--
+-- testWibble (SafeString str) = str == str
+-- Or, you can use forAll at each point you need a safe string:
+--
+-- testWibble = forAll genSafeString $ \str -> str == str
+-- shareimprove this answer
+
